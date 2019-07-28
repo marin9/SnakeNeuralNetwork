@@ -27,3 +27,4 @@ void snake_init(SnakeGame *game);
 void snake_step(SnakeGame *game);
 void snake_left(SnakeGame *game);
 void snake_right(SnakeGame *game);
+void snake_getparam(SnakeGame *game, float *in);

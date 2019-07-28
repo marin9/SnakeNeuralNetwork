@@ -3,6 +3,7 @@
 #include <time.h>
 #include <SDL2/SDL.h>
 #include "snake.h"
+#include "network.h"
 
 #define W_WIDTH		800
 #define W_HEIGHT	600
@@ -11,6 +12,10 @@
 static SDL_Window *window;
 static SDL_Renderer *renderer;
 static SnakeGame game;
+static Network nnet;
+static float w1[]={1, 2, 3, 4, 5, 6};
+static float w2[]={0.2, 0.5, 0.1, 0.4, 10, 4};
+static float w3[]={6, 2, 3, 3, 1, 5};
 
 
 void graphic_init();
@@ -23,12 +28,12 @@ void get_args(int argc, char** argv);
 
 
 //TODO main.c snake.c(rand collision)
-//TODO pause, args, ai, text, score, speed
 int main (int argc, char** argv){
     get_args(argc, argv);
 	srand(time(0));
 	graphic_init();
     snake_init(&game);
+    network_init(&nnet, w1, w2, w3);
 
     game_render();
     SDL_Delay(2000);
@@ -68,7 +73,7 @@ void game_exit(){
 }
 
 void game_step(){
-	SDL_Event event;
+	/*SDL_Event event;
     
 	while(SDL_PollEvent(&event)){
     	if(event.type==SDL_KEYDOWN){
@@ -84,6 +89,17 @@ void game_step(){
 			game_exit();
 		}
 	}
+    */
+
+    float in[6];
+    float out[3];
+    snake_getparam(&game, in);
+    network_output(&nnet, in, out);
+
+    if(out[1]>out[0] && out[1]>out[2]) snake_right(&game);
+    else if(out[2]>out[0] && out[2]>out[1]) snake_left(&game);
+
+
 	snake_step(&game);
 }
 

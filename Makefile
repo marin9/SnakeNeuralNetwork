@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-Wall -Wextra
-LDFLAGS=-lSDL2
+LDFLAGS=-lSDL2 -lm
 TARGET=snake
 
 SRC=$(wildcard *.c)

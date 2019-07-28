@@ -135,3 +135,101 @@ void snake_right(SnakeGame* game){
 		break;
 	}
 }
+
+void snake_getparam(SnakeGame *game, float *in){
+	//0 zid ispred
+	//1 zid desno
+	//2 zid lijevo
+
+	//3 hrana ispred
+	//4 hrana desno
+	//5 hrana lijevo
+
+	switch(game->snake.ort){
+	case ORT_UP:
+		if(game->snake.x[0]-1<0){
+			in[0]=1.0;
+			in[1]=0.0;
+			in[2]=0.0;
+		}else if(game->snake.y[0]+1>=SG_WIDTH){
+			in[0]=0.0;
+			in[1]=1.0;
+			in[2]=0.0;			
+		}else if(game->snake.y[0]-1<0){
+			in[0]=0.0;
+			in[1]=0.0;
+			in[2]=1.0;
+		}else{
+			in[0]=0.0;
+			in[1]=0.0;
+			in[2]=0.0;
+		}
+
+		if(game->food.y==game->snake.y[0]){
+			in[3]=1.0;
+			in[4]=0.0;
+			in[5]=0.0;
+		}else if(game->food.x<game->snake.x[0]){
+			in[3]=0.0;
+			in[4]=1.0;
+			in[5]=0.0;
+		}else if(game->food.x>game->snake.x[0]){
+			in[3]=0.0;
+			in[4]=0.0;
+			in[5]=1.0;
+		}else{
+			in[3]=0.0;
+			in[4]=0.0;
+			in[5]=0.0;
+		}
+		break;
+
+
+	case ORT_DOWN:
+
+
+
+	case ORT_RIGHT:
+
+
+
+
+	case ORT_LEFT:
+		if(game->snake.y[0]-1<0){
+			in[0]=1.0;
+			in[1]=0.0;
+			in[2]=0.0;
+		}else if(game->snake.x[0]-1<0){
+			in[0]=0.0;
+			in[1]=1.0;
+			in[2]=0.0;			
+		}else if(game->snake.x[0]+1>=SG_HEIGHT){
+			in[0]=0.0;
+			in[1]=0.0;
+			in[2]=1.0;
+		}else{
+			in[0]=0.0;
+			in[1]=0.0;
+			in[2]=0.0;
+		}
+
+		if(game->food.y==game->snake.y[0]){
+			in[3]=1.0;
+			in[4]=0.0;
+			in[5]=0.0;
+		}else if(game->food.x<game->snake.x[0]){
+			in[3]=0.0;
+			in[4]=1.0;
+			in[5]=0.0;
+		}else if(game->food.x>game->snake.x[0]){
+			in[3]=0.0;
+			in[4]=0.0;
+			in[5]=1.0;
+		}else{
+			in[3]=0.0;
+			in[4]=0.0;
+			in[5]=0.0;
+		}
+		break;
+	}
+}
