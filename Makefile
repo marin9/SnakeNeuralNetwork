@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall -Wextra -O2
+CFLAGS=-Wall -Wextra
 LDFLAGS=-lSDL2
 TARGET=snake
 

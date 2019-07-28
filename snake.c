@@ -17,39 +17,39 @@ static void snake_locate_food(SnakeGame *game){
 }
 
 static void snake_move(SnakeGame *game){
-	int lastX=game->snake.x[game->length-1];
-	int lastY=game->snake.y[game->length-1];
+	int lastX=game->snake.x[game->snake.length-1];
+	int lastY=game->snake.y[game->snake.length-1];
 	int i;
 
-	for(i=game->length-1;i>0;--i){
+	for(i=game->snake.length-1;i>0;--i){
 		game->snake.x[i]=game->snake.x[i-1];
 		game->snake.y[i]=game->snake.y[i-1];
 	}
 
-	switch(game->ort){
+	switch(game->snake.ort){
 	case ORT_UP:
-		game->snake.x[0]=game->snake.x[1]-1;
-		game->snake.y[0]=game->snake.y[1];
-		break;
-	case ORT_DOWN:
-		game->snake.x[0]=game->snake.x[1]+1;
-		game->snake.y[0]=game->snake.y[1];
-		break;
-	case ORT_LEFT:
 		game->snake.x[0]=game->snake.x[1];
 		game->snake.y[0]=game->snake.y[1]-1;
 		break;
-	case ORT_RIGHT:
+	case ORT_DOWN:
 		game->snake.x[0]=game->snake.x[1];
 		game->snake.y[0]=game->snake.y[1]+1;
+		break;
+	case ORT_LEFT:
+		game->snake.x[0]=game->snake.x[1]-1;
+		game->snake.y[0]=game->snake.y[1];
+		break;
+	case ORT_RIGHT:
+		game->snake.x[0]=game->snake.x[1]+1;
+		game->snake.y[0]=game->snake.y[1];
 		break;
 	}
 
 	if(game->snake.x[0]==game->food.x && game->snake.y[0]==game->food.y){
 		game->scores += 10;
-		game->snake.x[game->length]=lastX;
-		game->snake.y[game->length]=lastY;
-		game->length += 1;
+		game->snake.x[game->snake.length]=lastX;
+		game->snake.y[game->snake.length]=lastY;
+		game->snake.length += 1;
 		snake_locate_food(game);
 	}
 }
@@ -60,24 +60,24 @@ static void snake_collision(SnakeGame *game){
 	hx=game->snake.x[0];
 	hy=game->snake.y[0];
 
-	for(i=0;i<game->length;++i){
+	for(i=0;i<game->snake.length;++i){
 		x=game->snake.x[i];
 		y=game->snake.y[i];
 		if(x<0 || y<0 || x>=SG_WIDTH || y>=SG_HEIGHT){
-			game->status=SG_END;
+			game->status=0;
 			return;
 		}
 
 		if(i!=0 && x==hx && y==hy){
-			game->status=SG_END;
+			game->status=0;
 			return;
 		}
 	}
 }
 
 void snake_init(SnakeGame* game){
-	game->ort=ORT_UP;
-	game->status=SG_RUN;
+	game->snake.ort=ORT_UP;
+	game->status=1;
 	game->scores=0;
 	
 	game->snake.x[0]=SG_WIDTH/2;
@@ -88,13 +88,13 @@ void snake_init(SnakeGame* game){
 		game->snake.x[i]=game->snake.x[i-1];
 		game->snake.y[i]=game->snake.y[i-1]+1;
 	}
-	game->length=i;
+	game->snake.length=i;
 
 	snake_locate_food(game);
 }
 
 void snake_step(SnakeGame* game){
-	if(game->status!=SG_RUN){
+	if(!game->status){
 		return;
 	}
 
@@ -103,55 +103,35 @@ void snake_step(SnakeGame* game){
 }
 
 void snake_left(SnakeGame* game){
-	switch(game->ort){
+	switch(game->snake.ort){
 	case ORT_UP:
-		game->ort=ORT_LEFT;
+		game->snake.ort=ORT_LEFT;
 		break;
 	case ORT_LEFT:
-		game->ort=ORT_DOWN;
+		game->snake.ort=ORT_DOWN;
 		break;
 	case ORT_DOWN:
-		game->ort=ORT_RIGHT;
+		game->snake.ort=ORT_RIGHT;
 		break;
 	case ORT_RIGHT:
-		game->ort=ORT_UP;
+		game->snake.ort=ORT_UP;
 		break;
 	}
 }
 
 void snake_right(SnakeGame* game){
-	switch(game->ort){
+	switch(game->snake.ort){
 	case ORT_UP:
-		game->ort=ORT_RIGHT;
+		game->snake.ort=ORT_RIGHT;
 		break;
 	case ORT_LEFT:
-		game->ort=ORT_UP;
+		game->snake.ort=ORT_UP;
 		break;
 	case ORT_DOWN:
-		game->ort=ORT_LEFT;
+		game->snake.ort=ORT_LEFT;
 		break;
 	case ORT_RIGHT:
-		game->ort=ORT_DOWN;
+		game->snake.ort=ORT_DOWN;
 		break;
 	}
-}
-
-int snake_get_ort(SnakeGame *game){
-	return game->ort;
-}
-
-int snake_get_status(SnakeGame *game){
-	return game->status;
-}
-
-int snake_get_scores(SnakeGame *game){
-	return game->scores;
-}
-
-Food* snake_get_food(SnakeGame *game){
-	return &(game->food);
-}
-
-Snake* snake_get_snake(SnakeGame *game){
-	return &(game->snake);
 }
