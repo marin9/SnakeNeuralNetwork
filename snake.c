@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "snake.h"
 
 #define ORT_UP		0
@@ -7,46 +8,71 @@
 
 
 static void snake_locate_food(SnakeGame *game){
+	int rx, ry;
+	rx=rand()%SG_WIDTH; 
+	ry=rand()%SG_HEIGHT;
 
-
-
-
-
-
-
+	game->food.x=rx;
+	game->food.y=ry;
 }
 
 static void snake_move(SnakeGame *game){
+	int lastX=game->snake.x[game->length-1];
+	int lastY=game->snake.y[game->length-1];
+	int i;
+
+	for(i=game->length-1;i>0;--i){
+		game->snake.x[i]=game->snake.x[i-1];
+		game->snake.y[i]=game->snake.y[i-1];
+	}
+
 	switch(game->ort){
 	case ORT_UP:
-		--(game->snake.x[0]);
+		game->snake.x[0]=game->snake.x[1]-1;
+		game->snake.y[0]=game->snake.y[1];
 		break;
 	case ORT_DOWN:
-		++(game->snake.y[0]);
+		game->snake.x[0]=game->snake.x[1]+1;
+		game->snake.y[0]=game->snake.y[1];
 		break;
 	case ORT_LEFT:
-		--(game->snake.y[0]);
+		game->snake.x[0]=game->snake.x[1];
+		game->snake.y[0]=game->snake.y[1]-1;
 		break;
 	case ORT_RIGHT:
-		++(game->snake.y[0]);
+		game->snake.x[0]=game->snake.x[1];
+		game->snake.y[0]=game->snake.y[1]+1;
 		break;
 	}
 
-	int i;
-	for(i=1;i<game->length;++i){
-		game->snake.x[i]=
-		game->snake.y[i]=
+	if(game->snake.x[0]==game->food.x && game->snake.y[0]==game->food.y){
+		game->scores += 10;
+		game->snake.x[game->length]=lastX;
+		game->snake.y[game->length]=lastY;
+		game->length += 1;
+		snake_locate_food(game);
 	}
 }
 
 static void snake_collision(SnakeGame *game){
+	int i, x, y, hx, hy;
 
+	hx=game->snake.x[0];
+	hy=game->snake.y[0];
 
+	for(i=0;i<game->length;++i){
+		x=game->snake.x[i];
+		y=game->snake.y[i];
+		if(x<0 || y<0 || x>=SG_WIDTH || y>=SG_HEIGHT){
+			game->status=SG_END;
+			return;
+		}
 
-
-
-
-
+		if(i!=0 && x==hx && y==hy){
+			game->status=SG_END;
+			return;
+		}
+	}
 }
 
 void snake_init(SnakeGame* game){
@@ -108,6 +134,10 @@ void snake_right(SnakeGame* game){
 		game->ort=ORT_DOWN;
 		break;
 	}
+}
+
+int snake_get_ort(SnakeGame *game){
+	return game->ort;
 }
 
 int snake_get_status(SnakeGame *game){

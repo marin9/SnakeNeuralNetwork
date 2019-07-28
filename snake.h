@@ -4,8 +4,8 @@
 #define SG_WIDTH	20
 
 #define SG_RUN		0
-#define SG_OVER		1
-#define SG_FINISH	2
+#define SG_END		1
+#define SG_FIN		2
 
 
 typedef struct{
@@ -33,6 +33,7 @@ void snake_step(SnakeGame* game);
 void snake_left(SnakeGame* game);
 void snake_right(SnakeGame* game);
 
+int snake_get_ort(SnakeGame *game);
 int snake_get_status(SnakeGame *game);
 int snake_get_scores(SnakeGame *game);
 Food* snake_get_food(SnakeGame *game);

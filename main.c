@@ -8,60 +8,44 @@
 #define W_HEIGHT	600
 
 
-
 static SDL_Window *window;
 static SDL_Renderer *renderer;
-static SDL_Event event;
 static SnakeGame game;
+static int run;
 
 
 void graphic_init();
 void graphic_clear();
+void game_step();
+void game_exit();
+void game_status();
+void game_render();
+void wait_for_key();
 
 
-//TODO main.c snake.c
+
+//TODO main.c snake.c(rand collision)
 int main (int argc, char** argv){
-	
 	srand(time(0));
 	graphic_init();
     snake_init(&game);
 
+
+    run=1;
+    game_render();
     SDL_Delay(2000);
 
-    while(1){
-    	//get input
-    	//step
-    	//draw
+    while(run){
+    	game_step();
+    	game_render();
     	SDL_Delay(200);
-    	//check status
+    	game_status();
     }
 
+    SDL_Delay(2000);
+    wait_for_key();
 
-
-while(1){
-  while( SDL_PollEvent( &event ) ){
-    /* We are only worried about SDL_KEYDOWN and SDL_KEYUP events */
-    switch( event.type ){
-      case SDL_KEYDOWN:
-        printf( "Key press detected\n" );
-        break;
-
-      case SDL_KEYUP:
-        printf( "Key release detected\n" );
-        break;
-
-      default:
-        break;
-    }
-  }
-
-
-
-
-    SDL_Delay(20);
-}
-    SDL_DestroyWindow(window);
-    SDL_Quit();
+    game_exit();
     return 0;
 }
 
@@ -84,13 +68,72 @@ void graphic_clear(){
     SDL_RenderPresent(renderer);
 }
 
-/*  SDL_Rect r;
-    r.x = 50;
-    r.y = 50;
-    r.w = 50;
-    r.h = 50;
+void game_exit(){
+	SDL_DestroyWindow(window);
+    SDL_Quit();
+    exit(0);
+}
 
-    // Set render color to blue ( rect will be rendered in this color )
-    SDL_SetRenderDrawColor( renderer, 0, 0, 255, 255 );
-SDL_RenderFillRect(renderer, &r);
-*/
+void game_status(){
+	if(snake_get_status(&game)!=SG_RUN){
+		run=0;
+	}
+}
+
+void game_step(){
+	SDL_Event event;
+
+	while(SDL_PollEvent(&event)){
+    	if(event.type==SDL_KEYDOWN){
+    		int key=event.key.keysym.sym;
+
+    		if(key==SDLK_LEFT){
+    			snake_left(&game);
+    		}else if(key==SDLK_RIGHT){
+    			snake_right(&game);
+    		}
+
+
+		}else if(event.type==SDL_QUIT){
+			game_exit();
+		}
+	}
+	snake_step(&game);
+}
+
+void game_render(){
+	SDL_Rect r;
+    r.w=W_WIDTH/SG_WIDTH;
+    r.h=W_HEIGHT/SG_HEIGHT;
+
+    int i;
+    int len=game.length;
+    Snake *s=&(game.snake);
+
+    graphic_clear();
+
+    for(i=0;i<len;++i){
+    	r.x=s->x[i]*r.w;
+    	r.y=s->y[i]*r.h;
+    	if(i) SDL_SetRenderDrawColor(renderer, 0, 0, 255, 0);
+    	else SDL_SetRenderDrawColor(renderer, 0, 255, 155, 0);
+		SDL_RenderFillRect(renderer, &r);
+    }
+
+    r.x=game.food.x*r.w;
+    r.y=game.food.y*r.h;
+    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 0);
+    SDL_RenderFillRect(renderer, &r);
+
+    SDL_RenderPresent(renderer);
+}
+
+void wait_for_key(){
+	SDL_Event event;
+
+	while(SDL_PollEvent(&event)){
+    	if(event.type==SDL_KEYDOWN || event.type==SDL_QUIT){
+			return;
+		}
+	}
+}

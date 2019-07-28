@@ -1,13 +1,13 @@
 CC=gcc
-CFLAGS=-Wall -Wextra
+CFLAGS=-Wall -Wextra -O2
 LDFLAGS=-lSDL2
-TARGET=prog
+TARGET=snake
 
 SRC=$(wildcard *.c)
 INC=$(wildcard *.h)
 OBJ=$(SRC:.c=.o)
 
-	
+
 $(TARGET): $(OBJ)
 	$(CC) $(OBJ) -o $@ $(LDFLAGS)
 
@@ -17,4 +17,3 @@ $(TARGET): $(OBJ)
 clean:
 	rm -f $(TARGET)
 	rm -f *.o
-
