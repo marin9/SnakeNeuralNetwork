@@ -27,7 +27,7 @@ void get_args(int argc, char** argv);
 
 
 
-//TODO main.c snake.c(rand collision)
+//TODO main.c network.c(uredniji kod) network.h(uredniji kod)
 int main (int argc, char** argv){
     get_args(argc, argv);
 	srand(time(0));
@@ -73,9 +73,9 @@ void game_exit(){
 }
 
 void game_step(){
-	/*SDL_Event event;
+	SDL_Event event;
     
-	while(SDL_PollEvent(&event)){
+	if(SDL_PollEvent(&event)){
     	if(event.type==SDL_KEYDOWN){
             switch(event.key.keysym.sym){
             case SDLK_RIGHT:
@@ -88,9 +88,11 @@ void game_step(){
 		}else if(event.type==SDL_QUIT){
 			game_exit();
 		}
+        while(SDL_PollEvent(&event));
 	}
-    */
+    
 
+/*
     float in[6];
     float out[3];
     snake_getparam(&game, in);
@@ -98,7 +100,7 @@ void game_step(){
 
     if(out[1]>out[0] && out[1]>out[2]) snake_right(&game);
     else if(out[2]>out[0] && out[2]>out[1]) snake_left(&game);
-
+*/
 
 	snake_step(&game);
 }

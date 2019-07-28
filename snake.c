@@ -8,9 +8,22 @@
 
 
 static void snake_locate_food(SnakeGame *game){
-	int rx, ry;
-	rx=rand()%SG_WIDTH; 
-	ry=rand()%SG_HEIGHT;
+	int i, ret, rx, ry, sx, sy;
+
+	do{
+		ret=0;
+		rx=rand()%SG_WIDTH; 
+		ry=rand()%SG_HEIGHT;
+
+		for(i=0;i<game->snake.length;++i){
+			sx=game->snake.x[i];
+			sy=game->snake.y[i];
+
+			if(rx==sx && ry==sy){
+				ret=1;
+			}
+		}
+	}while(ret);
 
 	game->food.x=rx;
 	game->food.y=ry;
@@ -63,7 +76,7 @@ static void snake_collision(SnakeGame *game){
 	for(i=0;i<game->snake.length;++i){
 		x=game->snake.x[i];
 		y=game->snake.y[i];
-		if(x<0 || y<0 || x>=SG_WIDTH || y>=SG_HEIGHT){
+		if(i==0 && (x<0 || y<0 || x>=SG_WIDTH || y>=SG_HEIGHT)){
 			game->status=0;
 			return;
 		}
@@ -136,100 +149,193 @@ void snake_right(SnakeGame* game){
 	}
 }
 
-void snake_getparam(SnakeGame *game, float *in){
-	//0 zid ispred
-	//1 zid desno
-	//2 zid lijevo
 
-	//3 hrana ispred
-	//4 hrana desno
-	//5 hrana lijevo
+
+int snake_forward_blocked(SnakeGame *game){
+	int hx=game->snake.x[0];
+	int hy=game->snake.y[0];
+	int i;
 
 	switch(game->snake.ort){
 	case ORT_UP:
-		if(game->snake.x[0]-1<0){
-			in[0]=1.0;
-			in[1]=0.0;
-			in[2]=0.0;
-		}else if(game->snake.y[0]+1>=SG_WIDTH){
-			in[0]=0.0;
-			in[1]=1.0;
-			in[2]=0.0;			
-		}else if(game->snake.y[0]-1<0){
-			in[0]=0.0;
-			in[1]=0.0;
-			in[2]=1.0;
-		}else{
-			in[0]=0.0;
-			in[1]=0.0;
-			in[2]=0.0;
-		}
-
-		if(game->food.y==game->snake.y[0]){
-			in[3]=1.0;
-			in[4]=0.0;
-			in[5]=0.0;
-		}else if(game->food.x<game->snake.x[0]){
-			in[3]=0.0;
-			in[4]=1.0;
-			in[5]=0.0;
-		}else if(game->food.x>game->snake.x[0]){
-			in[3]=0.0;
-			in[4]=0.0;
-			in[5]=1.0;
-		}else{
-			in[3]=0.0;
-			in[4]=0.0;
-			in[5]=0.0;
-		}
+		--hy;
 		break;
-
-
 	case ORT_DOWN:
-
-
-
+		++hy;
+		break;
 	case ORT_RIGHT:
-
-
-
-
+		++hx;
+		break;
 	case ORT_LEFT:
-		if(game->snake.y[0]-1<0){
-			in[0]=1.0;
-			in[1]=0.0;
-			in[2]=0.0;
-		}else if(game->snake.x[0]-1<0){
-			in[0]=0.0;
-			in[1]=1.0;
-			in[2]=0.0;			
-		}else if(game->snake.x[0]+1>=SG_HEIGHT){
-			in[0]=0.0;
-			in[1]=0.0;
-			in[2]=1.0;
-		}else{
-			in[0]=0.0;
-			in[1]=0.0;
-			in[2]=0.0;
-		}
-
-		if(game->food.y==game->snake.y[0]){
-			in[3]=1.0;
-			in[4]=0.0;
-			in[5]=0.0;
-		}else if(game->food.x<game->snake.x[0]){
-			in[3]=0.0;
-			in[4]=1.0;
-			in[5]=0.0;
-		}else if(game->food.x>game->snake.x[0]){
-			in[3]=0.0;
-			in[4]=0.0;
-			in[5]=1.0;
-		}else{
-			in[3]=0.0;
-			in[4]=0.0;
-			in[5]=0.0;
-		}
+		--hx;
 		break;
 	}
+
+	if(hx<0 || hy<0 || hx>=SG_WIDTH || hy>=SG_HEIGHT){
+		return 1;
+	}
+
+	for(i=0;i<game->snake.length;++i){
+		if(game->snake.x[i]==hx && game->snake.y[i]==hy){
+			return 1;
+		}
+	}
+	return 0;
+}
+
+int snake_right_blocked(SnakeGame *game){
+	int hx=game->snake.x[0];
+	int hy=game->snake.y[0];
+	int i;
+
+	switch(game->snake.ort){
+	case ORT_UP:
+		++hx;
+		break;
+	case ORT_DOWN:
+		--hx;
+		break;
+	case ORT_RIGHT:
+		++hy;
+		break;
+	case ORT_LEFT:
+		--hy;
+		break;
+	}
+
+	if(hx<0 || hy<0 || hx>=SG_WIDTH || hy>=SG_HEIGHT){
+		return 1;
+	}
+
+	for(i=0;i<game->snake.length;++i){
+		if(game->snake.x[i]==hx && game->snake.y[i]==hy){
+			return 1;
+		}
+	}
+	return 0;
+}
+
+int snake_left_blocked(SnakeGame *game){
+	int hx=game->snake.x[0];
+	int hy=game->snake.y[0];
+	int i;
+
+	switch(game->snake.ort){
+	case ORT_UP:
+		--hx;
+		break;
+	case ORT_DOWN:
+		++hx;
+		break;
+	case ORT_RIGHT:
+		--hy;
+		break;
+	case ORT_LEFT:
+		++hy;
+		break;
+	}
+
+	if(hx<0 || hy<0 || hx>=SG_WIDTH || hy>=SG_HEIGHT){
+		return 1;
+	}
+
+	for(i=0;i<game->snake.length;++i){
+		if(game->snake.x[i]==hx && game->snake.y[i]==hy){
+			return 1;
+		}
+	}
+	return 0;
+}
+
+int snake_food_forward(SnakeGame *game){
+	int hx=game->snake.x[0];
+	int hy=game->snake.y[0];
+	int fx=game->food.x;
+	int fy=game->food.y;
+	int ort=game->snake.ort;
+
+	if(ort==ORT_UP && fy<hy)
+		return 1;
+
+	if(ort==ORT_DOWN && fy>hy)
+		return 1;
+
+	if(ort==ORT_RIGHT && fx>hx)
+		return 1;
+
+	if(ort==ORT_LEFT && fx<hx)
+		return 1;
+
+	return 0;
+}
+
+int snake_food_right(SnakeGame *game){
+	int hx=game->snake.x[0];
+	int hy=game->snake.y[0];
+	int fx=game->food.x;
+	int fy=game->food.y;
+	int ort=game->snake.ort;
+
+	if(ort==ORT_UP && fx>hx)
+		return 1;
+
+	if(ort==ORT_DOWN && fx<hx)
+		return 1;
+
+	if(ort==ORT_RIGHT && fy>hy)
+		return 1;
+
+	if(ort==ORT_LEFT && fy<hy)
+		return 1;
+
+	return 0;
+}
+
+int snake_food_left(SnakeGame *game){
+	int hx=game->snake.x[0];
+	int hy=game->snake.y[0];
+	int fx=game->food.x;
+	int fy=game->food.y;
+	int ort=game->snake.ort;
+
+	if(ort==ORT_UP && fx<hx)
+		return 1;
+
+	if(ort==ORT_DOWN && fx>hx)
+		return 1;
+
+	if(ort==ORT_RIGHT && fy<hy)
+		return 1;
+
+	if(ort==ORT_LEFT && fy>hy)
+		return 1;
+
+	return 0;
+}
+
+void snake_getparam(SnakeGame *game, float *in){
+	//0 forward blocked
+	//1 right blocked
+	//2 left_blocked
+	//3 food forward
+	//4 food right
+	//5 food left
+
+	if(snake_forward_blocked(game)) in[0]=1.0;
+	else in[0]=0.0;
+
+	if(snake_right_blocked(game)) in[1]=1.0;
+	else in[1]=0.0;
+
+	if(snake_left_blocked(game)) in[2]=1.0;
+	else in[2]=0.0;
+
+	if(snake_food_forward(game)) in[3]=1.0;
+	else in[3]=0.0;
+
+	if(snake_food_right(game)) in[4]=1.0;
+	else in[4]=0.0;
+
+	if(snake_food_left(game)) in[5]=1.0;
+	else in[5]=0.0;
 }
