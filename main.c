@@ -4,6 +4,7 @@
 #include <SDL2/SDL.h>
 #include "snake.h"
 #include "network.h"
+#include "genetic.h"
 
 #define W_WIDTH		800
 #define W_HEIGHT	600
@@ -13,9 +14,9 @@ static SDL_Window *window;
 static SDL_Renderer *renderer;
 static SnakeGame game;
 static Network nnet;
-static float w1[]={1, 2, 3, 4, 5, 6};
-static float w2[]={0.2, 0.5, 0.1, 0.4, 10, 4};
-static float w3[]={6, 2, 3, 3, 1, 5};
+static float w1[6];
+static float w2[6];
+static float w3[6];
 
 
 void graphic_init();
@@ -29,10 +30,30 @@ void get_args(int argc, char** argv);
 
 //TODO main.c network.c(uredniji kod) network.h(uredniji kod)
 int main (int argc, char** argv){
+
+if(0){
+Chromosome *c=genetic_run();
+FILE *f=fopen("netdata.bin", "wb");
+if(f){
+    fwrite(c->w1, sizeof(float), 6, f);
+    fwrite(c->w2, sizeof(float), 6, f);
+    fwrite(c->w3, sizeof(float), 6, f);
+    fclose(f);
+}
+return 0;
+}
     get_args(argc, argv);
 	srand(time(0));
 	graphic_init();
     snake_init(&game);
+
+    FILE *fd=fopen("netdata.bin", "rb");
+    if(fd){
+        fread(w1, sizeof(float), 6, fd);
+        fread(w2, sizeof(float), 6, fd);
+        fread(w3, sizeof(float), 6, fd);
+        fclose(fd);
+    }
     network_init(&nnet, w1, w2, w3);
 
     game_render();
@@ -73,6 +94,7 @@ void game_exit(){
 }
 
 void game_step(){
+/*
 	SDL_Event event;
     
 	if(SDL_PollEvent(&event)){
@@ -91,8 +113,9 @@ void game_step(){
         while(SDL_PollEvent(&event));
 	}
     
+*/
 
-/*
+
     float in[6];
     float out[3];
     snake_getparam(&game, in);
@@ -100,7 +123,7 @@ void game_step(){
 
     if(out[1]>out[0] && out[1]>out[2]) snake_right(&game);
     else if(out[2]>out[0] && out[2]>out[1]) snake_left(&game);
-*/
+
 
 	snake_step(&game);
 }

@@ -1,4 +1,5 @@
 #include <math.h>
+#include <stdio.h>
 #include <string.h>
 #include "network.h"
 
@@ -29,7 +30,7 @@ float neuron_output(Neuron *n, float *input){
 	case TANH:
 		return -1+2/(1+pow(E, -2*sum));
 	case LINEAR:
-		return sum*0.1;
+		return sum*3;
 	default:
 		return sum;
 	}
