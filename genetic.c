@@ -5,7 +5,7 @@
 #include <string.h>
 
 #define POPULATION 		100
-#define GENERATIONS		1000
+#define GENERATIONS		20
 #define MUTATION 		0.1
 
 static Chromosome population[POPULATION];
@@ -16,9 +16,9 @@ static void genetic_init(){
 	int i, j;
 	for(i=0;i<POPULATION;++i){
 		for(j=0;j<6;++j){
-			population[i].w1[j]=rand()%100;
-			population[i].w2[j]=rand()%100;
-			population[i].w3[j]=rand()%100;
+			population[i].w1[j]=rand()%10+2;
+			population[i].w2[j]=rand()%10+3;
+			population[i].w3[j]=rand()%10+1;
 		}
 		population[i].score=0;
 	}
@@ -33,7 +33,7 @@ static void genetic_fitness(){
 		network_init(&net, population[i].w1, population[i].w2, population[i].w3);
 		snake_init(&game);
 
-		for(j=0;j<20000;++j){
+		for(j=0;j<8000;++j){
 			if(!game.status) break;
 
 			float in[6];
@@ -65,14 +65,14 @@ static void genetic_mutation(){
 		int x=rand()%POPULATION;
 		int y=rand()%6;
 		population[x].w1[y] *= 0.9;
-		population[x].w2[y] *= 0.8;
-		population[x].w3[y] *= 0.95;
+		population[x].w2[y] *= 0.9;
+		population[x].w3[y] *= 0.9;
 
 		x=rand()%POPULATION;
 		y=rand()%6;
 		population[x].w1[y] *= 1.1;
-		population[x].w2[y] *= 1.2;
-		population[x].w3[y] *= 1.05;
+		population[x].w2[y] *= 1.1;
+		population[x].w3[y] *= 1.1;
 	}
 }
 

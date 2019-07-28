@@ -1,3 +1,4 @@
+#include <math.h>
 #include <stdlib.h>
 #include "snake.h"
 
@@ -59,7 +60,7 @@ static void snake_move(SnakeGame *game){
 	}
 
 	if(game->snake.x[0]==game->food.x && game->snake.y[0]==game->food.y){
-		game->scores += 10;
+		game->scores += 50;
 		game->snake.x[game->snake.length]=lastX;
 		game->snake.y[game->snake.length]=lastY;
 		game->snake.length += 1;
@@ -111,8 +112,14 @@ void snake_step(SnakeGame* game){
 		return;
 	}
 
+	float d1, d2;
+	d1=sqrt((game->snake.x[0])*(game->food.x)+(game->snake.y[0])*(game->food.y));
 	snake_move(game);
 	snake_collision(game);
+	d2=sqrt((game->snake.x[0])*(game->food.x)+(game->snake.y[0])*(game->food.y));
+
+	if(d2<d1) game->scores += 1;
+	else if(d2>d1) game->scores -= 2;
 }
 
 void snake_left(SnakeGame* game){

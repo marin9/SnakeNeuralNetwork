@@ -30,8 +30,9 @@ void get_args(int argc, char** argv);
 
 //TODO main.c network.c(uredniji kod) network.h(uredniji kod)
 int main (int argc, char** argv){
+srand(time(0));
 
-if(0){
+if(argc==2){
 Chromosome *c=genetic_run();
 FILE *f=fopen("netdata.bin", "wb");
 if(f){
@@ -43,7 +44,6 @@ if(f){
 return 0;
 }
     get_args(argc, argv);
-	srand(time(0));
 	graphic_init();
     snake_init(&game);
 
