@@ -8,9 +8,9 @@
 
 
 typedef struct{
+	int score;
 	int act_func_L1;
 	int act_func_L2;
-
 	float wL1[6][6];
 	float wL2[3][6];
 } NetworkParams;

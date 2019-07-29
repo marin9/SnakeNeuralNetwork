@@ -1,72 +1,119 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 #include "network.h"
 #include "snake.h"
 
 
-int genetic_run(int iter, int pop, float mut){
+static NetworkParams *population;
 
 
+static int genetic_init_population(int pop){
+	population=(NetworkParams*)malloc(pop*sizeof(NetworkParams));
+	if(!population){
+		return -1;
+	}
 
+	int i, j, k;
+	for(i=0;i<pop;++i){
+		population[i].score=0;
+		population[i].act_func_L1=ADALINE;
+		population[i].act_func_L2=SIGMOID;
 
-
-
-
-
-
-
+		for(j=0;j<6;++j){
+			for(k=0;k<6;++k){
+				population[i].wL1[j][k]=rand()%100;
+			}
+		}
+		for(j=0;j<3;++j){
+			for(k=0;k<6;++k){
+				population[i].wL1[j][k]=rand()%100;
+			}
+		}
+	}
 	return 0;
 }
 
-
-
-
-
-/*
-static void genetic_init(){
-	int i, j;
-	for(i=0;i<POPULATION;++i){
-		for(j=0;j<6;++j){
-			population[i].w1[j]=rand()%10+2;
-			population[i].w2[j]=rand()%10+3;
-			population[i].w3[j]=rand()%10+1;
-		}
-		population[i].score=0;
-	}
-}
-
-static void genetic_fitness(){
-	int i, j;
-	Network net;
+static void genetic_run_games(int pop){
+	int i, s;
+	float in[6];
+	float out[3];
 	SnakeGame game;
 
-	for(i=0;i<POPULATION;++i){
-		network_init(&net, population[i].w1, population[i].w2, population[i].w3);
+
+	for(i=0;i<pop;++i){
 		snake_init(&game);
+		network_init(&population[i]);
 
-		for(j=0;j<8000;++j){
-			if(!game.status) break;
+		for(s=0;s<2000;++s){
+			if(!game.status){
+				break;
+			}
 
-			float in[6];
-    		float out[3];
-    		snake_getparam(&game, in);
-    		network_output(&net, in, out);
-
-		    if(out[1]>out[0] && out[1]>out[2]) snake_right(&game);
-    		else if(out[2]>out[0] && out[2]>out[1]) snake_left(&game);
+			snake_getparam(&game, in);
+			network_output(in, out);
+    		
+		    if(out[1]>out[0] && out[1]>out[2]){
+		    	snake_right(&game);
+		    }else if(out[2]>out[0] && out[2]>out[1]){
+		    	snake_left(&game);
+		    }
 			snake_step(&game);
 		}
+		population[i].score=game.scores;
 	}
 }
 
-static Chromosome* genetic_get_best(){
-	int i, max_score=population[0].score, best_i=0;
-	for(i=1;i<POPULATION;++i){
-		if(population[i].score>max_score){
-			best_i=i;
-			max_score=population[i].score;
+static void genetic_selection(int mut){
+	int best[5];
+
+	//TODO
+
+
+
+
+}
+
+static void genetic_store_best(int pop){
+	FILE *fd=fopen("netdat", "wb");
+	if(!fd){
+		printf("ERROR: genetic_store_best: fopen\n");
+		exit(1);
+	}
+
+	int best=0;
+	int score=population[0].score;
+	int i;
+	for(i=1;i<pop;++i){
+		if(population[i].score>score){
+			best=i;
+			score=population[i].score;
 		}
 	}
-	return &population[best_i];
+
+	fwrite(&population[best], sizeof(NetworkParams), 1, fd);
+	fclose(fd);
 }
+
+
+int genetic_run(int iter, int pop, float mut){
+	if(iter<1 || pop<1){
+		return -1;
+	}
+
+	srand(time(0));
+	genetic_init_population(pop);
+
+	while(iter--){
+		genetic_run_games(pop);
+		genetic_selection(mut);
+	}
+	
+	genetic_store_best(pop);
+	return 0;
+}
+
+/*
 
 static void genetic_mutation(){
 	int i;
@@ -96,17 +143,5 @@ static void genetic_selection(){
 
 		c=genetic_get_best();
 	}
-}
-
-Chromosome* genetic_run(){
-	genetic_init();
-
-	int i;
-	for(i=0;i<GENERATIONS;++i){
-		genetic_fitness();
-		genetic_selection();
-		genetic_mutation();
-	}
-	return genetic_get_best();
 }
 */

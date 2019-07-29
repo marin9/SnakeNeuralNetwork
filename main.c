@@ -66,7 +66,6 @@ void game_exit(){
 }
 
 void game_step(){
-
 	SDL_Event event;
     
 	while(SDL_PollEvent(&event)){
@@ -83,7 +82,6 @@ void game_step(){
 			game_exit();
 		}
 	}
-
 	snake_step(&game);
 }
 
@@ -135,5 +133,5 @@ void get_args(int argc, char** argv){
 
 
 
-    
+
 }
