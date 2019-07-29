@@ -1,27 +1,20 @@
 #pragma once
 
-#define NOFUNC		0
+#define ADALINE		0
 #define SIGMOID		1
 #define TANH		2
 #define LINEAR		3
 
 
-typedef struct{
-	int type;
-	int count;
-	float w[6];
-} Neuron;
-
-void neuron_init(Neuron *n, float *w, int c, int type);
-float neuron_output(Neuron *n, float *input);
-
-
 
 typedef struct{
-	Neuron stage1[6];
-	Neuron stage2[6];
-	Neuron stage3[3];
-} Network;
+	int act_func_L1;
+	int act_func_L2;
 
-void network_init(Network *n, float *w1, float *w2, float *w3);
-void network_output(Network *n, float *input, float *output);
+	float wL1[6][6];
+	float wL2[3][6];
+} NetworkParams;
+
+
+int network_init(NetworkParams *param);
+int network_output(float *input, float *output);

@@ -3,8 +3,6 @@
 #include <time.h>
 #include <SDL2/SDL.h>
 #include "snake.h"
-#include "network.h"
-#include "genetic.h"
 
 #define W_WIDTH		800
 #define W_HEIGHT	600
@@ -13,10 +11,7 @@
 static SDL_Window *window;
 static SDL_Renderer *renderer;
 static SnakeGame game;
-static Network nnet;
-static float w1[6];
-static float w2[6];
-static float w3[6];
+static int level;
 
 
 void graphic_init();
@@ -27,42 +22,19 @@ void wait_for_key();
 void get_args(int argc, char** argv);
 
 
-
-//TODO main.c network.c(uredniji kod) network.h(uredniji kod)
+//TODO main.c genetic.c
 int main (int argc, char** argv){
-srand(time(0));
-
-if(argc==2){
-Chromosome *c=genetic_run();
-FILE *f=fopen("netdata.bin", "wb");
-if(f){
-    fwrite(c->w1, sizeof(float), 6, f);
-    fwrite(c->w2, sizeof(float), 6, f);
-    fwrite(c->w3, sizeof(float), 6, f);
-    fclose(f);
-}
-return 0;
-}
     get_args(argc, argv);
 	graphic_init();
     snake_init(&game);
-
-    FILE *fd=fopen("netdata.bin", "rb");
-    if(fd){
-        fread(w1, sizeof(float), 6, fd);
-        fread(w2, sizeof(float), 6, fd);
-        fread(w3, sizeof(float), 6, fd);
-        fclose(fd);
-    }
-    network_init(&nnet, w1, w2, w3);
-
     game_render();
     SDL_Delay(2000);
+    level=4;
 
     while(game.status){
     	game_step();
     	game_render();
-    	SDL_Delay(200);
+    	SDL_Delay(50*level);
     }
 
     SDL_Delay(1000);
@@ -94,10 +66,10 @@ void game_exit(){
 }
 
 void game_step(){
-/*
+
 	SDL_Event event;
     
-	if(SDL_PollEvent(&event)){
+	while(SDL_PollEvent(&event)){
     	if(event.type==SDL_KEYDOWN){
             switch(event.key.keysym.sym){
             case SDLK_RIGHT:
@@ -110,12 +82,11 @@ void game_step(){
 		}else if(event.type==SDL_QUIT){
 			game_exit();
 		}
-        while(SDL_PollEvent(&event));
 	}
     
-*/
 
 
+/*
     float in[6];
     float out[3];
     snake_getparam(&game, in);
@@ -123,7 +94,7 @@ void game_step(){
 
     if(out[1]>out[0] && out[1]>out[2]) snake_right(&game);
     else if(out[2]>out[0] && out[2]>out[1]) snake_left(&game);
-
+*/
 
 	snake_step(&game);
 }

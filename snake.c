@@ -158,7 +158,7 @@ void snake_right(SnakeGame* game){
 
 
 
-int snake_forward_blocked(SnakeGame *game){
+static int snake_forward_blocked(SnakeGame *game){
 	int hx=game->snake.x[0];
 	int hy=game->snake.y[0];
 	int i;
@@ -190,7 +190,7 @@ int snake_forward_blocked(SnakeGame *game){
 	return 0;
 }
 
-int snake_right_blocked(SnakeGame *game){
+static int snake_right_blocked(SnakeGame *game){
 	int hx=game->snake.x[0];
 	int hy=game->snake.y[0];
 	int i;
@@ -222,7 +222,7 @@ int snake_right_blocked(SnakeGame *game){
 	return 0;
 }
 
-int snake_left_blocked(SnakeGame *game){
+static int snake_left_blocked(SnakeGame *game){
 	int hx=game->snake.x[0];
 	int hy=game->snake.y[0];
 	int i;
@@ -254,7 +254,7 @@ int snake_left_blocked(SnakeGame *game){
 	return 0;
 }
 
-int snake_food_forward(SnakeGame *game){
+static int snake_food_forward(SnakeGame *game){
 	int hx=game->snake.x[0];
 	int hy=game->snake.y[0];
 	int fx=game->food.x;
@@ -276,7 +276,7 @@ int snake_food_forward(SnakeGame *game){
 	return 0;
 }
 
-int snake_food_right(SnakeGame *game){
+static int snake_food_right(SnakeGame *game){
 	int hx=game->snake.x[0];
 	int hy=game->snake.y[0];
 	int fx=game->food.x;
@@ -298,7 +298,7 @@ int snake_food_right(SnakeGame *game){
 	return 0;
 }
 
-int snake_food_left(SnakeGame *game){
+static int snake_food_left(SnakeGame *game){
 	int hx=game->snake.x[0];
 	int hy=game->snake.y[0];
 	int fx=game->food.x;
@@ -320,7 +320,7 @@ int snake_food_left(SnakeGame *game){
 	return 0;
 }
 
-void snake_getparam(SnakeGame *game, float *in){
+void snake_getparam(SnakeGame *game, float *param){
 	//0 forward blocked
 	//1 right blocked
 	//2 left_blocked
@@ -328,21 +328,21 @@ void snake_getparam(SnakeGame *game, float *in){
 	//4 food right
 	//5 food left
 
-	if(snake_forward_blocked(game)) in[0]=1.0;
-	else in[0]=0.0;
+	if(snake_forward_blocked(game)) param[0]=1.0;
+	else param[0]=0.0;
 
-	if(snake_right_blocked(game)) in[1]=1.0;
-	else in[1]=0.0;
+	if(snake_right_blocked(game)) param[1]=1.0;
+	else param[1]=0.0;
 
-	if(snake_left_blocked(game)) in[2]=1.0;
-	else in[2]=0.0;
+	if(snake_left_blocked(game)) param[2]=1.0;
+	else param[2]=0.0;
 
-	if(snake_food_forward(game)) in[3]=1.0;
-	else in[3]=0.0;
+	if(snake_food_forward(game)) param[3]=1.0;
+	else param[3]=0.0;
 
-	if(snake_food_right(game)) in[4]=1.0;
-	else in[4]=0.0;
+	if(snake_food_right(game)) param[4]=1.0;
+	else param[4]=0.0;
 
-	if(snake_food_left(game)) in[5]=1.0;
-	else in[5]=0.0;
+	if(snake_food_left(game)) param[5]=1.0;
+	else param[5]=0.0;
 }

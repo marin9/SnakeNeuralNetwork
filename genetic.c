@@ -4,14 +4,26 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define POPULATION 		100
-#define GENERATIONS		20
-#define MUTATION 		0.1
 
-static Chromosome population[POPULATION];
+int genetic_run(NetworkParams *pn, GeneticParams *pg){
+	if(!pn || !pg){
+		return -1;
+	}
 
 
 
+
+
+
+
+	return 0;
+}
+
+
+
+
+
+/*
 static void genetic_init(){
 	int i, j;
 	for(i=0;i<POPULATION;++i){
@@ -100,3 +112,4 @@ Chromosome* genetic_run(){
 	}
 	return genetic_get_best();
 }
+*/
