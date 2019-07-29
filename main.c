@@ -83,18 +83,6 @@ void game_step(){
 			game_exit();
 		}
 	}
-    
-
-
-/*
-    float in[6];
-    float out[3];
-    snake_getparam(&game, in);
-    network_output(&nnet, in, out);
-
-    if(out[1]>out[0] && out[1]>out[2]) snake_right(&game);
-    else if(out[2]>out[0] && out[2]>out[1]) snake_left(&game);
-*/
 
 	snake_step(&game);
 }
@@ -141,4 +129,11 @@ void wait_for_key(){
 void get_args(int argc, char** argv){
     argc=argc;
     argv=argv;
+    //TODO genetic run if -g
+
+
+
+
+
+    
 }

@@ -1,14 +1,11 @@
-#include "genetic.h"
 #include "network.h"
 #include "snake.h"
-#include <stdlib.h>
-#include <string.h>
 
 
-int genetic_run(NetworkParams *pn, GeneticParams *pg){
-	if(!pn || !pg){
-		return -1;
-	}
+int genetic_run(int iter, int pop, float mut){
+
+
+
 
 
 
