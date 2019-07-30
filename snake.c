@@ -59,8 +59,8 @@ static void snake_move(SnakeGame *game){
 		break;
 	}
 
-	if(game->snake.x[0]==game->food.x && game->snake.y[0]==game->food.y){
-		game->scores += 50;
+	if((game->snake.x[0]==game->food.x) && (game->snake.y[0]==game->food.y)){
+		game->scores += 100;
 		game->snake.x[game->snake.length]=lastX;
 		game->snake.y[game->snake.length]=lastY;
 		game->snake.length += 1;
@@ -79,11 +79,13 @@ static void snake_collision(SnakeGame *game){
 		y=game->snake.y[i];
 		if(i==0 && (x<0 || y<0 || x>=SG_WIDTH || y>=SG_HEIGHT)){
 			game->status=0;
+			game->scores -= 500;
 			return;
 		}
 
 		if(i!=0 && x==hx && y==hy){
 			game->status=0;
+			game->scores -= 500;
 			return;
 		}
 	}

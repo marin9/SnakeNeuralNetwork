@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 #include "network.h"
 #include "snake.h"
 
@@ -17,7 +16,7 @@ static int genetic_init_population(int pop){
 	int i, j, k;
 	for(i=0;i<pop;++i){
 		population[i].score=0;
-		population[i].act_func_L1=ADALINE;
+		population[i].act_func_L1=SIGMOID;
 		population[i].act_func_L2=SIGMOID;
 
 		for(j=0;j<6;++j){
@@ -45,7 +44,7 @@ static void genetic_run_games(int pop){
 		snake_init(&game);
 		network_init(&population[i]);
 
-		for(s=0;s<2000;++s){
+		for(s=0;s<1000;++s){
 			if(!game.status){
 				break;
 			}
@@ -64,14 +63,40 @@ static void genetic_run_games(int pop){
 	}
 }
 
-static void genetic_selection(int mut){
-	int best[5];
+static void genetic_selection(int pop){
+	int i;
+	int b=0;
+	int bs=population[0].score;
 
-	//TODO
+	for(i=0;i<pop;++i){
+		if(population[i].score>bs){
+			b=i;
+			bs=population[i].score;
+		}
+	}
 
+	for(i=0;i<pop;++i){
+		if(i==b){
+			continue;
+		}
 
+		int a=rand()%6;
+		int b=rand()%6;
+		int c=rand()%3;
+		int d=rand()%6;
 
-
+		if(rand()%10==0){
+			population[i].wL1[a][b] = population[b].wL1[a][b];
+			population[i].wL2[c][d] = population[b].wL1[c][d];
+		}
+		if(rand()%5==0){
+			population[i].wL1[a][b] *= 1.1;
+			population[i].wL2[c][d] *= 1.1;
+		}else{
+			population[i].wL1[a][b] *= 0.9;
+			population[i].wL2[c][d] *= 0.9;
+		}
+	}
 }
 
 static void genetic_store_best(int pop){
@@ -96,52 +121,19 @@ static void genetic_store_best(int pop){
 }
 
 
-int genetic_run(int iter, int pop, float mut){
+int genetic_run(int iter, int pop){
 	if(iter<1 || pop<1){
 		return -1;
 	}
 
-	srand(time(0));
 	genetic_init_population(pop);
 
 	while(iter--){
 		genetic_run_games(pop);
-		genetic_selection(mut);
+		genetic_selection(pop);
 	}
 	
 	genetic_store_best(pop);
 	return 0;
 }
 
-/*
-
-static void genetic_mutation(){
-	int i;
-	for(i=0;i<POPULATION/10;++i){
-		int x=rand()%POPULATION;
-		int y=rand()%6;
-		population[x].w1[y] *= 0.9;
-		population[x].w2[y] *= 0.9;
-		population[x].w3[y] *= 0.9;
-
-		x=rand()%POPULATION;
-		y=rand()%6;
-		population[x].w1[y] *= 1.1;
-		population[x].w2[y] *= 1.1;
-		population[x].w3[y] *= 1.1;
-	}
-}
-
-static void genetic_selection(){
-	Chromosome* c=genetic_get_best();
-
-	int i;
-	for(i=0;i<POPULATION/10;++i){
-		int r=rand()%POPULATION;
-
-		memcpy(&population[r], c, sizeof(Chromosome));
-
-		c=genetic_get_best();
-	}
-}
-*/
