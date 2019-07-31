@@ -1,7 +1,7 @@
 #pragma once
 
-#define SG_HEIGHT	20
-#define SG_WIDTH	25
+#define SG_HEIGHT	30
+#define SG_WIDTH	40
 
 typedef struct{
 	int x;
@@ -22,9 +22,18 @@ typedef struct{
 	int status;
 } SnakeGame;
 
+typedef struct{
+	float blocked_f;
+	float blocked_r;
+	float blocked_l;
+	float food_f;
+	float food_r;
+	float food_l;
+} SnakeParam;
+
 
 void snake_init(SnakeGame *game);
 void snake_step(SnakeGame *game);
 void snake_left(SnakeGame *game);
 void snake_right(SnakeGame *game);
-void snake_getparam(SnakeGame *game, float *param);
+void snake_getparam(SnakeGame *game, SnakeParam *p);

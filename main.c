@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include <SDL2/SDL.h>
 #include "snake.h"
@@ -13,39 +14,35 @@
 static SDL_Window *window;
 static SDL_Renderer *renderer;
 static SnakeGame game;
-static int level;
 static NetworkParams netparam;
+static int level;
+static int player;
 
 
+void print_help();
+void read_netsettings();
 void graphic_init();
 void game_step();
 void game_render();
 void game_exit();
 void wait_for_key();
-
+void get_arguments(int argc, char **argv);
 
 
 int main (int argc, char** argv){
-
-    if(argc==2){
-        genetic_run(20000, 200);
-        return 0;
+    if(argc<2){
+        print_help();
     }
 
     srand(time(0));
-	graphic_init();
+    graphic_init();
     snake_init(&game);
     game_render();
-    SDL_Delay(2000);
-    level=1;
-
-    FILE *fd=fopen("netdat", "rb");
-    if(!fd){
-        printf("ERROR: main: fopen\n");
-        exit(1);
-    }
-    fread(&netparam, sizeof(NetworkParams), 1, fd);
+    read_netsettings();
     network_init(&netparam);
+    get_arguments(argc, argv);
+   
+    SDL_Delay(2000);
 
     while(game.status){
     	game_step();
@@ -60,6 +57,25 @@ int main (int argc, char** argv){
 }
 
 
+void print_help(){
+    printf("ERROR: Illegal arguments.\n");
+    printf("Usage:\n");
+    printf("p - player\nt - run training\nn - run network\n");
+    printf("snake n\n");
+    printf("snake p [level]\n");
+    printf("snake t [iterations] [population]\n");
+    exit(1);
+}
+
+void read_netsettings(){
+    FILE *fd=fopen("netdat", "rb");
+    if(!fd){
+        printf("ERROR: read_netsettings: fopen\n");
+        exit(2);
+    }
+    fread(&netparam, sizeof(NetworkParams), 1, fd);
+    fclose(fd);
+}
 
 void graphic_init(){
 	window=SDL_CreateWindow("Snake", 
@@ -82,46 +98,48 @@ void game_exit(){
 }
 
 void game_step(){
-    /*
-	SDL_Event event;   
-	while(SDL_PollEvent(&event)){
-    	if(event.type==SDL_KEYDOWN){
-            switch(event.key.keysym.sym){
-            case SDLK_RIGHT:
-                snake_right(&game);
-                break;
-            case SDLK_LEFT:
-                snake_left(&game);
-                break;
+    if(player){
+        SDL_Event event;   
+        while(SDL_PollEvent(&event)){
+            if(event.type==SDL_KEYDOWN){
+                switch(event.key.keysym.sym){
+                case SDLK_RIGHT:
+                    snake_right(&game);
+                    break;
+                case SDLK_LEFT:
+                    snake_left(&game);
+                    break;
+                }
+            }else if(event.type==SDL_QUIT){
+                game_exit();
             }
-		}else if(event.type==SDL_QUIT){
-			game_exit();
-		}
-	}
-	snake_step(&game);
-    */
+        }
+    }else{
+        float in[6], out[3];
+        SnakeParam param;
 
-    float in[6];
-    float out[3];
-
-    snake_getparam(&game, in);
-printf("%f %f %f %f %f %f\n", in[0], in[1], in[2], in[3], in[4], in[5]);
-    network_output(in, out);
-printf("%f %f %f\n\n", out[0], out[1], out[2]);
+        snake_getparam(&game, &param);
+        in[0]=param.blocked_f;
+        in[1]=param.blocked_r;
+        in[2]=param.blocked_l;
+        in[3]=param.food_f;
+        in[4]=param.food_r;
+        in[5]=param.food_l;
+        network_output(in, out);
  
-    if(out[1]>out[0] && out[1]>out[2]){
-        snake_right(&game);
-    }else if(out[2]>out[0] && out[2]>out[1]){
-        snake_left(&game);
-    }
-    snake_step(&game);
-
+        if(out[1]>out[0] && out[1]>out[2]){
+            snake_right(&game);
+        }else if(out[2]>out[0] && out[2]>out[1]){
+            snake_left(&game);
+        }
+    }   
+	snake_step(&game);
 }
 
 void game_render(){
-    int i;
     Snake *s;
 	SDL_Rect r;
+
     r.w=W_WIDTH/SG_WIDTH;
     r.h=W_HEIGHT/SG_HEIGHT;
     s=&(game.snake);
@@ -129,19 +147,23 @@ void game_render(){
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
     SDL_RenderClear(renderer);
 
+    int i;
     for(i=0;i<s->length;++i){
     	r.x=s->x[i]*r.w;
     	r.y=s->y[i]*r.h;
-    	if(i) SDL_SetRenderDrawColor(renderer, 0, 0, 255, 0);
-    	else SDL_SetRenderDrawColor(renderer, 255, 155, 0, 0);
+    	if(i)
+            SDL_SetRenderDrawColor(renderer, 0, 0, 255, 0);
+    	else
+            SDL_SetRenderDrawColor(renderer, 255, 155, 0, 0);
+
 		SDL_RenderFillRect(renderer, &r);
     }
 
     r.x=game.food.x*r.w;
     r.y=game.food.y*r.h;
+
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 0);
     SDL_RenderFillRect(renderer, &r);
-
     SDL_RenderPresent(renderer);
 }
 
@@ -154,5 +176,33 @@ void wait_for_key(){
             }
         }
         SDL_Delay(100);
+    }
+}
+
+void get_arguments(int argc, char **argv){
+    if(strcmp(argv[1], "p")==0){
+        if(argc!=3){
+            print_help();
+        }
+        player=1;
+        level=atoi(argv[2]);
+    }else if(strcmp(argv[1], "n")==0){
+        player=0;
+        level=1;
+    }else if(strcmp(argv[1], "t")==0){
+        long t1, t2;
+
+        if(argc!=4){
+            print_help();
+        }
+
+        t1=clock();
+        genetic_run(atoi(argv[2]), atoi(argv[3]));
+        t2=clock();
+
+        printf("Training finish.\nTime: %ld\n", (t2-t1)/CLOCKS_PER_SEC);
+        exit(0);
+    }else{
+        print_help();
     }
 }

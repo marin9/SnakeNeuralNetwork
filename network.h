@@ -6,13 +6,18 @@
 #define LINEAR		3
 
 
+#define LAYER1_IN	6
+#define LAYER1_OUT	6
+#define LAYER2_IN	6
+#define LAYER2_OUT	3
+
 
 typedef struct{
 	int score;
 	int act_func_L1;
 	int act_func_L2;
-	float wL1[6][6];
-	float wL2[3][6];
+	float wL1[LAYER1_OUT][LAYER1_IN];
+	float wL2[LAYER2_OUT][LAYER2_IN];
 } NetworkParams;
 
 

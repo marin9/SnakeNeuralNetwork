@@ -22,6 +22,7 @@ static void snake_locate_food(SnakeGame *game){
 
 			if(rx==sx && ry==sy){
 				ret=1;
+				break;
 			}
 		}
 	}while(ret);
@@ -77,15 +78,14 @@ static void snake_collision(SnakeGame *game){
 	for(i=0;i<game->snake.length;++i){
 		x=game->snake.x[i];
 		y=game->snake.y[i];
+
 		if(i==0 && (x<0 || y<0 || x>=SG_WIDTH || y>=SG_HEIGHT)){
 			game->status=0;
-			game->scores -= 500;
 			return;
 		}
 
 		if(i!=0 && x==hx && y==hy){
 			game->status=0;
-			game->scores -= 500;
 			return;
 		}
 	}
@@ -114,14 +114,29 @@ void snake_step(SnakeGame* game){
 		return;
 	}
 
+	int sx, sy, fx, fy;
 	float d1, d2;
-	d1=sqrt((game->snake.x[0])*(game->food.x)+(game->snake.y[0])*(game->food.y));
+
+	sx=game->snake.x[0];
+	sy=game->snake.y[0];
+	fx=game->food.x;
+	fy=game->food.y;
+	d1=sqrt((sx-fx)*(sx-fx)+(sy-fy)*(sy-fy));
+
 	snake_move(game);
 	snake_collision(game);
-	d2=sqrt((game->snake.x[0])*(game->food.x)+(game->snake.y[0])*(game->food.y));
+	
+	sx=game->snake.x[0];
+	sy=game->snake.y[0];
+	fx=game->food.x;
+	fy=game->food.y;
+	d2=sqrt((sx-fx)*(sx-fx)+(sy-fy)*(sy-fy));
 
-	if(d2<d1) game->scores += 1;
-	else if(d2>d1) game->scores -= 2;
+	if(d2<d1){
+		game->scores += 1;
+	}else if(d2>d1){
+		game->scores -= 2;
+	}
 }
 
 void snake_left(SnakeGame* game){
@@ -322,29 +337,34 @@ static int snake_food_left(SnakeGame *game){
 	return 0;
 }
 
-void snake_getparam(SnakeGame *game, float *param){
-	//0 forward blocked
-	//1 right blocked
-	//2 left_blocked
-	//3 food forward
-	//4 food right
-	//5 food left
+void snake_getparam(SnakeGame *game, SnakeParam *p){
+	if(snake_forward_blocked(game))
+		p->blocked_f=1.0;
+	else
+		p->blocked_f=0.0;
 
-	if(snake_forward_blocked(game)) param[0]=1.0;
-	else param[0]=0.0;
+	if(snake_right_blocked(game))
+		p->blocked_r=1.0;
+	else
+		p->blocked_r=0.0;
 
-	if(snake_right_blocked(game)) param[1]=1.0;
-	else param[1]=0.0;
+	if(snake_left_blocked(game))
+		p->blocked_l=1.0;
+	else
+		p->blocked_l=0.0;
 
-	if(snake_left_blocked(game)) param[2]=1.0;
-	else param[2]=0.0;
+	if(snake_food_forward(game))
+		p->food_f=1.0;
+	else
+		p->food_f=0.0;
 
-	if(snake_food_forward(game)) param[3]=1.0;
-	else param[3]=0.0;
+	if(snake_food_right(game))
+		p->food_r=1.0;
+	else
+		p->food_r=0.0;
 
-	if(snake_food_right(game)) param[4]=1.0;
-	else param[4]=0.0;
-
-	if(snake_food_left(game)) param[5]=1.0;
-	else param[5]=0.0;
+	if(snake_food_left(game))
+		p->food_l=1.0;
+	else
+		p->food_l=0.0;
 }

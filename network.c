@@ -48,20 +48,20 @@ int network_output(float *input, float *output){
 	}
 
 	//layer1
-	for(i=0;i<6;++i){
+	for(i=0;i<LAYER1_OUT;++i){
 		float sum=0;
-		for(j=0;j<6;++j){
+		for(j=0;j<LAYER1_IN;++j){
 			sum += input[j]*net_param->wL1[i][j];
 		}
 		output[i]=network_activation_func(sum, SIGMOID);
 	}
 
-	float_copy(input, output, 6);
+	float_copy(input, output, LAYER1_OUT);
 
 	//layer2
-	for(i=0;i<3;++i){
+	for(i=0;i<LAYER2_OUT;++i){
 		float sum=0;
-		for(j=0;j<6;++j){
+		for(j=0;j<LAYER2_IN;++j){
 			sum += input[j]*net_param->wL1[i][j];
 		}
 		output[i]=network_activation_func(sum, LINEAR);

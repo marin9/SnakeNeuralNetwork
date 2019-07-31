@@ -44,7 +44,7 @@ static void genetic_run_games(int pop){
 		snake_init(&game);
 		network_init(&population[i]);
 
-		for(s=0;s<1000;++s){
+		for(s=0;s<20000;++s){
 			if(!game.status){
 				break;
 			}
@@ -60,6 +60,8 @@ static void genetic_run_games(int pop){
 			snake_step(&game);
 		}
 		population[i].score=game.scores;
+
+		if(i%2000==0) printf(".\n"); 
 	}
 }
 
@@ -90,11 +92,11 @@ static void genetic_selection(int pop){
 			population[i].wL2[c][d] = population[b].wL1[c][d];
 		}
 		if(rand()%5==0){
-			population[i].wL1[a][b] *= 1.1;
-			population[i].wL2[c][d] *= 1.1;
+			population[i].wL1[a][b] *= 1.01;
+			population[i].wL2[c][d] *= 1.01;
 		}else{
-			population[i].wL1[a][b] *= 0.9;
-			population[i].wL2[c][d] *= 0.9;
+			population[i].wL1[a][b] *= 0.09;
+			population[i].wL2[c][d] *= 0.09;
 		}
 	}
 }
