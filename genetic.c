@@ -5,11 +5,13 @@
 
 
 static NetworkParams *population;
+static NetworkParams *population_tmp;
 
 
 static int genetic_init_population(int pop){
 	population=(NetworkParams*)malloc(pop*sizeof(NetworkParams));
-	if(!population){
+	population_tmp=(NetworkParams*)malloc(pop*sizeof(NetworkParams));
+	if(!population || !population_tmp){
 		return -1;
 	}
 
@@ -19,26 +21,34 @@ static int genetic_init_population(int pop){
 		population[i].act_func_L1=SIGMOID;
 		population[i].act_func_L2=SIGMOID;
 
-		for(j=0;j<6;++j){
-			for(k=0;k<6;++k){
-				population[i].wL1[j][k]=rand()%100;
+		for(j=0;j<LAYER1_OUT;++j){
+			for(k=0;k<LAYER1_IN;++k){
+				if(rand()%2==0){
+					population[i].wL1[j][k]=rand()%100;
+				}else{
+					population[i].wL1[j][k]=-(rand()%100);
+				}
 			}
 		}
-		for(j=0;j<3;++j){
-			for(k=0;k<6;++k){
-				population[i].wL1[j][k]=rand()%100;
+		for(j=0;j<LAYER2_OUT;++j){
+			for(k=0;k<LAYER2_IN;++k){
+				if(rand()%2==0){
+					population[i].wL1[j][k]=rand()%100;
+				}else{
+					population[i].wL1[j][k]=-(rand()%100);
+				}
 			}
 		}
 	}
 	return 0;
 }
 
-static void genetic_run_games(int pop){
+static void genetic_run_units(int pop){
 	int i, s;
 	float in[6];
 	float out[3];
 	SnakeGame game;
-
+	SnakeParam param;
 
 	for(i=0;i<pop;++i){
 		snake_init(&game);
@@ -47,25 +57,28 @@ static void genetic_run_games(int pop){
 		for(s=0;s<20000;++s){
 			if(!game.status){
 				break;
-			}
+			}        
 
-			snake_getparam(&game, in);
-			network_output(in, out);
-    		
-		    if(out[1]>out[0] && out[1]>out[2]){
-		    	snake_right(&game);
-		    }else if(out[2]>out[0] && out[2]>out[1]){
-		    	snake_left(&game);
-		    }
-			snake_step(&game);
+    	    snake_getparam(&game, &param);
+        	in[0]=param.blocked_f;
+        	in[1]=param.blocked_r;
+        	in[2]=param.blocked_l;
+        	in[3]=param.food_f;
+        	in[4]=param.food_r;
+        	in[5]=param.food_l;
+        	network_output(in, out);
+ 
+        	if(out[1]>out[0] && out[1]>out[2]){
+	            snake_right(&game);
+    	    }else if(out[2]>out[0] && out[2]>out[1]){
+        	    snake_left(&game);
+        	}
 		}
 		population[i].score=game.scores;
-
-		if(i%2000==0) printf(".\n"); 
 	}
 }
 
-static void genetic_selection(int pop){
+static void genetic_selection(int pop){//TODO
 	int i;
 	int b=0;
 	int bs=population[0].score;
@@ -102,15 +115,17 @@ static void genetic_selection(int pop){
 }
 
 static void genetic_store_best(int pop){
+	int i, score, best;
+
 	FILE *fd=fopen("netdat", "wb");
 	if(!fd){
 		printf("ERROR: genetic_store_best: fopen\n");
 		exit(1);
 	}
 
-	int best=0;
-	int score=population[0].score;
-	int i;
+	best=0;
+	score=population[0].score;
+
 	for(i=1;i<pop;++i){
 		if(population[i].score>score){
 			best=i;
@@ -131,7 +146,7 @@ int genetic_run(int iter, int pop){
 	genetic_init_population(pop);
 
 	while(iter--){
-		genetic_run_games(pop);
+		genetic_run_units(pop);
 		genetic_selection(pop);
 	}
 	
