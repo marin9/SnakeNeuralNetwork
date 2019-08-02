@@ -62,7 +62,7 @@ void print_help(){
     printf("p - player\nt - run training\nn - run network\n");
     printf("snake n\n");
     printf("snake p [level]\n");
-    printf("snake t [iterations] [population]\n");
+    printf("snake t [iterations] [population] [game_steps]\n");
     exit(1);
 }
 
@@ -114,6 +114,13 @@ void game_step(){
             }
         }
     }else{
+        SDL_Event event;   
+        while(SDL_PollEvent(&event)){
+            if(event.type==SDL_QUIT){
+                game_exit();
+            }
+        }
+
         float in[6], out[3];
         SnakeParam param;
 
@@ -139,8 +146,8 @@ void game_render(){
     Snake *s;
 	SDL_Rect r;
 
-    r.w=W_WIDTH/SG_WIDTH;
-    r.h=W_HEIGHT/SG_HEIGHT;
+    r.w=W_WIDTH/GAME_WIDTH;
+    r.h=W_HEIGHT/GAME_HEIGHT;
     s=&(game.snake);
 
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
@@ -191,10 +198,21 @@ void get_arguments(int argc, char **argv){
         level=1;
         read_netsettings();
 
+        printf("Network settings:\n");
+        int i, j;
+        for(i=0;i<NET_OUTPUTS;++i){
+            for(j=0;j<NET_INPUTS;++j){
+                printf("%f  ", netparam.w[j][i]);
+            }
+            printf("\n");
+        }
+        printf("Score: %d\n", netparam.score);
+        printf("\n");
+
     }else if(strcmp(argv[1], "t")==0){
         long t1, t2;
 
-        if(argc!=4){
+        if(argc!=5){
             print_help();
         }
         if(atoi(argv[3])<20){
@@ -202,8 +220,13 @@ void get_arguments(int argc, char **argv){
             exit(3);
         }
 
+        printf("Iterations: %d\n", atoi(argv[2]));
+        printf("Population: %d\n", atoi(argv[3]));
+        printf("Game steps: %d\n", atoi(argv[4]));
+        printf("Genetic algorithm start...\n");
+
         t1=clock();
-        genetic_run(atoi(argv[2]), atoi(argv[3]));
+        genetic_run(atoi(argv[2]), atoi(argv[3]), atoi(argv[4]));
         t2=clock();
 
         printf("Training finish.\nTime: %ld s\n", (t2-t1)/CLOCKS_PER_SEC);

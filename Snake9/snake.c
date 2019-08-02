@@ -61,7 +61,7 @@ static void snake_move(SnakeGame *game){
 	}
 
 	if((game->snake.x[0]==game->food.x) && (game->snake.y[0]==game->food.y)){
-		game->scores += 100;
+		game->scores += 500;
 		game->snake.x[game->snake.length]=lastX;
 		game->snake.y[game->snake.length]=lastY;
 		game->snake.length += 1;

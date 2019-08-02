@@ -4,8 +4,6 @@
 #include "network.h"
 #include "snake.h"
 
-#define INT_MIN		-2000000000
-
 static NetworkParams *population;
 static NetworkParams *population_tmp;
 
@@ -56,7 +54,7 @@ static void genetic_run_units(int pop){
 		snake_init(&game);
 		network_init(&population[i]);
 
-		for(s=0;s<2000;++s){
+		for(s=0;s<50000;++s){
 			if(!game.status){
 				break;
 			}        
@@ -75,6 +73,7 @@ static void genetic_run_units(int pop){
     	    }else if(out[2]>out[0] && out[2]>out[1]){
         	    snake_left(&game);
         	}
+        	snake_step(&game);
 		}
 		population[i].score=game.scores;
 	}
@@ -108,7 +107,7 @@ static int genetic_get_worst(int pop){
 
 static void genetic_selection(int pop){
 	int i, select;
-	int N=3;
+	int N=5;
 
 	NetworkParams best;
 
@@ -142,13 +141,11 @@ static void genetic_selection(int pop){
 		int d=rand()%6;
 
 		if(rand()%2==0){
-			if(rand()%2==0){
-				population[select].wL1[a][b] *= 1.01;
-				population[select].wL2[c][d] *= 1.01;
-			}else{
-				population[select].wL1[a][b] *= 0.99;
-				population[select].wL2[c][d] *= 0.99;
-			}			
+			population[select].wL1[a][b] *= 1.01;
+			population[select].wL2[c][d] *= 1.01;
+		}else{
+			population[select].wL1[a][b] *= 0.99;
+			population[select].wL2[c][d] *= 0.99;
 		}
 	}
 }
