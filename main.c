@@ -35,12 +35,11 @@ int main (int argc, char** argv){
     }
 
     srand(time(0));
+    get_arguments(argc, argv);
     graphic_init();
     snake_init(&game);
     game_render();
-    read_netsettings();
     network_init(&netparam);
-    get_arguments(argc, argv);
    
     SDL_Delay(2000);
 
@@ -186,21 +185,28 @@ void get_arguments(int argc, char **argv){
         }
         player=1;
         level=atoi(argv[2]);
+        
     }else if(strcmp(argv[1], "n")==0){
         player=0;
         level=1;
+        read_netsettings();
+
     }else if(strcmp(argv[1], "t")==0){
         long t1, t2;
 
         if(argc!=4){
             print_help();
         }
+        if(atoi(argv[3])<20){
+            printf("ERROR: Minimal population: 20\n");
+            exit(3);
+        }
 
         t1=clock();
         genetic_run(atoi(argv[2]), atoi(argv[3]));
         t2=clock();
 
-        printf("Training finish.\nTime: %ld\n", (t2-t1)/CLOCKS_PER_SEC);
+        printf("Training finish.\nTime: %ld s\n", (t2-t1)/CLOCKS_PER_SEC);
         exit(0);
     }else{
         print_help();

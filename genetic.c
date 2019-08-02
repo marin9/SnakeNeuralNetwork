@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "network.h"
 #include "snake.h"
 
+#define INT_MIN		-2000000000
 
 static NetworkParams *population;
 static NetworkParams *population_tmp;
@@ -54,7 +56,7 @@ static void genetic_run_units(int pop){
 		snake_init(&game);
 		network_init(&population[i]);
 
-		for(s=0;s<20000;++s){
+		for(s=0;s<2000;++s){
 			if(!game.status){
 				break;
 			}        
@@ -78,53 +80,9 @@ static void genetic_run_units(int pop){
 	}
 }
 
-static void genetic_selection(int pop){//TODO
-	int i;
-	int b=0;
-	int bs=population[0].score;
-
-	for(i=0;i<pop;++i){
-		if(population[i].score>bs){
-			b=i;
-			bs=population[i].score;
-		}
-	}
-
-	for(i=0;i<pop;++i){
-		if(i==b){
-			continue;
-		}
-
-		int a=rand()%6;
-		int b=rand()%6;
-		int c=rand()%3;
-		int d=rand()%6;
-
-		if(rand()%10==0){
-			population[i].wL1[a][b] = population[b].wL1[a][b];
-			population[i].wL2[c][d] = population[b].wL1[c][d];
-		}
-		if(rand()%5==0){
-			population[i].wL1[a][b] *= 1.01;
-			population[i].wL2[c][d] *= 1.01;
-		}else{
-			population[i].wL1[a][b] *= 0.09;
-			population[i].wL2[c][d] *= 0.09;
-		}
-	}
-}
-
-static void genetic_store_best(int pop){
-	int i, score, best;
-
-	FILE *fd=fopen("netdat", "wb");
-	if(!fd){
-		printf("ERROR: genetic_store_best: fopen\n");
-		exit(1);
-	}
-
-	best=0;
-	score=population[0].score;
+static int genetic_get_best(int pop){
+	int i, best=0;
+	int score=population[0].score;
 
 	for(i=1;i<pop;++i){
 		if(population[i].score>score){
@@ -132,7 +90,79 @@ static void genetic_store_best(int pop){
 			score=population[i].score;
 		}
 	}
+	return best;
+}
 
+static int genetic_get_worst(int pop){
+	int i, worst=0;
+	int score=population[0].score;
+
+	for(i=1;i<pop;++i){
+		if(population[i].score<score){
+			worst=i;
+			score=population[i].score;
+		}
+	}
+	return worst;
+}
+
+static void genetic_selection(int pop){
+	int i, select;
+	int N=3;
+
+	NetworkParams best;
+
+	for(i=0;i<N;++i){
+		select=genetic_get_best(pop);
+		memcpy(&population_tmp[i], &population[select], sizeof(NetworkParams));
+		if(i==0){
+			memcpy(&best, &population[select], sizeof(NetworkParams));
+		}
+	}
+
+	for(i=0;i<N;++i){
+		select=genetic_get_worst(pop);
+		memcpy(&population[select], &population_tmp[i], sizeof(NetworkParams));
+
+		int x, y;
+		for(x=0;x<6;++x){
+			for(y=0;y<6;++y){
+				population[select].wL1[x][y]=(population[select].wL1[x][y]+best.wL1[x][y])/2;
+			}
+		}
+		for(x=0;x<3;++x){
+			for(y=0;y<6;++y){
+				population[select].wL2[x][y]=(population[select].wL2[x][y]+best.wL2[x][y])/2;
+			}
+		}
+
+		int a=rand()%6;
+		int b=rand()%6;
+		int c=rand()%3;
+		int d=rand()%6;
+
+		if(rand()%2==0){
+			if(rand()%2==0){
+				population[select].wL1[a][b] *= 1.01;
+				population[select].wL2[c][d] *= 1.01;
+			}else{
+				population[select].wL1[a][b] *= 0.99;
+				population[select].wL2[c][d] *= 0.99;
+			}			
+		}
+	}
+}
+
+static void genetic_store_best(int pop){
+	int best;
+
+	FILE *fd=fopen("netdat", "wb");
+	if(!fd){
+		printf("ERROR: genetic_store_best: fopen\n");
+		exit(1);
+	}
+
+	best=genetic_get_best(pop);
 	fwrite(&population[best], sizeof(NetworkParams), 1, fd);
 	fclose(fd);
 }
